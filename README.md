@@ -5,6 +5,30 @@
 
 ---
 
+## 00 — Mô hình Kinh doanh
+
+1. **Dự án:** Stroke Risk Prediction — sản phẩm AI hỗ trợ sàng lọc nguy cơ đột quỵ từ dữ liệu nhân khẩu học và lâm sàng như tuổi, giới tính, tăng huyết áp, bệnh tim, mức glucose trung bình, BMI, hút thuốc, stress công việc và nơi cư trú. Core value là giúp nhân viên y tế nhận diện bệnh nhân cần tư vấn, xét nghiệm, follow-up hoặc chuyển tuyến sớm hơn.
+
+2. **Target Customer / Persona:** B2B SME trong healthcare, ưu tiên phòng khám đa khoa, bệnh viện tư nhân nhỏ/vừa và chương trình khám sức khỏe doanh nghiệp có patient volume đều. Người dùng chính là nhân viên y tế tuyến đầu; người trả tiền là chủ phòng khám, ban vận hành bệnh viện hoặc đơn vị tổ chức screening.
+
+3. **Revenue Model:** **Hybrid (Base fee + Overage).** Gói cơ bản thu phí cố định theo clinic/workspace để tạo MRR dự đoán được, bao gồm một quota số lượt đánh giá nguy cơ mỗi tháng. Khi vượt quota, khách hàng trả thêm phí theo số lượt risk assessment hoặc theo active clinician. Cách này phù hợp với sản phẩm AI vì vẫn có doanh thu nền để bù chi phí vận hành/model monitoring, đồng thời tránh lỗ khi khách hàng có usage cao.
+
+4. **TAM (Total Addressable Market):** Ước tính thị trường Việt Nam có khoảng **1.665 bệnh viện năm 2024**, trong đó **384 bệnh viện ngoài công lập**; ngoài ra Bộ Y tế cũng nêu khu vực tư nhân có **hơn 53.000 phòng khám tư nhân**. Với sản phẩm giai đoạn đầu, TAM thực tế nên lấy theo logic: cơ sở có workflow khám/sàng lọc định kỳ + có hồ sơ bệnh nhân đủ dữ liệu + có khả năng trả phí phần mềm. Beachhead TAM: khoảng **5.000 cơ sở** nếu chỉ nhắm 384 bệnh viện tư và khoảng 8-10% nhóm phòng khám tư có patient volume đều. Expanded TAM: khoảng **54.000+ cơ sở** nếu mở rộng tới phần lớn phòng khám tư, bệnh viện công/tư và chương trình health check. Nguồn logic: [Bộ Y tế - tổng kết công tác y tế 2025](https://adminmoh.moh.gov.vn/web/guest/tin-hoat-dong/-/asset_publisher/9bYsY6ejaTm8/content/hoi-nghi-toan-quoc-tong-ket-cong-tac-y-te-nam-2025-nhiem-ky-2021-2025-inh-huong-cong-tac-nhiem-ky-2026-2030-va-trien-khai-nhiem-vu-trong-tam-nam-20-1) và [Bộ Y tế - mạng lưới y tế cơ sở, bệnh viện, phòng khám tư](https://adminmoh.moh.gov.vn/vi_VN/web/guest/hoat-dong-cua-lanh-dao-bo/-/asset_publisher/k206Q9qkZOqn/content/benh-nhan-quoc-te-en-viet-nam-ieu-tri-nhung-ca-benh-phuc-tap).
+
+**Điểm quyết định:** Chọn **Hybrid Pricing** vì sản phẩm AI y tế có chi phí biến đổi theo số lượt assessment, QA, model monitoring và compliance. Base fee giúp ổn định MRR; overage fee bảo vệ biên lợi nhuận khi clinic dùng nhiều.
+
+## Decision Note
+
+Tôi chọn Base ARPU **3.500.000 VNĐ/clinic/tháng** cho Stroke Risk Prediction vì đây là sản phẩm AI bổ sung vào workflow sàng lọc lâm sàng, có giá trị cao hơn phần mềm quản lý phòng khám cơ bản nhưng vẫn thấp hơn HIS đầy đủ. Benchmark thị trường cho thấy OmiClinic có gói phòng khám từ **500.000-10.000.000 VNĐ/tháng**, còn MyHospital niêm yết gói phòng khám chuyên khoa **5.000.000 VNĐ/tháng** và bệnh viện nhỏ/phòng khám đa khoa từ **25.000.000 VNĐ/tháng**. Vì vậy mức 3.5M là hợp lý cho một module AI chuyên biệt bán vào B2B SME healthcare. Base CAC **12.000.000 VNĐ/khách mới** phản ánh motion bán hàng có demo, tư vấn quy trình và onboarding dữ liệu; con số này được giữ thấp hơn enterprise sales-led vì beachhead là phòng khám vừa/nhỏ, không phải bệnh viện lớn.
+
+Tôi không để AI Hidden Costs bằng 0. Base đã tính **80.000 VNĐ/clinic/tháng**, tương đương **66.7% API cost**, cao hơn ngưỡng kiểm tra 30%. Khoản này bao gồm labeling/correction các ca dự đoán sai, kiểm thử drift dữ liệu, human QA định kỳ bởi nhân sự vận hành lâm sàng, và retraining khoảng mỗi 6 tháng hoặc sớm hơn nếu false negative tăng. Đây là phần bắt buộc vì sản phẩm y tế không thể chỉ tính API/model serving mà bỏ qua kiểm soát chất lượng đầu ra.
+
+Base unit economics khỏe: **Gross Margin 90%**, **LTV/CAC = 8.75**, **CAC Payback = 3.81 tháng**, vượt benchmark B2B SaaS thường dùng là LTV/CAC tối thiểu **3:1** và payback dưới **12 tháng**. Ở Pessimistic, churn tăng lên **5%** và CAC tăng lên **18M** nhưng runway vẫn **>= 24 tháng** nhờ initial cash 7 tỷ VNĐ. Plan B là giảm marketing paid, ưu tiên referral từ phòng khám hiện hữu, giữ fixed cost ở mức lean, và chỉ mở rộng đội QA/retraining khi số clinic active tăng thật.
+
+Nguồn benchmark: [OmiClinic pricing](https://omiclinic.vn/san-pham/omi-clinic), [MyHospital pricing](https://myhospital.vn/), [B2B SaaS LTV/CAC benchmark](https://www.saashero.net/strategy/b2b-saas-ltv-cac-benchmarks/).
+
+---
+
 ## 🎯 1. Tiêu Đề & Mục Tiêu Tổng Quan (Header & Objectives)
 
 ### Mục Tiêu Đầu Ra (Outcomes & Objectives):
@@ -111,12 +135,12 @@ Track1-Day24-MHV-[MSSV]-[HoVaTen]/
 ```
 
 ### Pre-submission Checklist (Rà soát 6 bước trước khi nộp):
-- [ ] 1. Khai báo rõ Họ tên, MSSV và Tên dự án (nhóm Build Phase hoặc cá nhân) trong `README.md`.
-- [ ] 2. File Excel đã điền 100% ô màu vàng cả 3 kịch bản tại Tab 1.
-- [ ] 3. Đã đảm bảo `AI Hidden Costs >= 30% API Cost` (không để bằng 0).
-- [ ] 4. Tab 2 Base LTV/CAC > 3.0 và CAC Payback < 12 tháng (tính trên Gross Margin).
-- [ ] 5. Tab 3 khi đổi sang `Pessimistic` đảm bảo Runway ≥ 12 tháng (Cash Position không bị âm).
-- [ ] 6. Viết xong đoạn văn **Decision Note (200–300 từ)** bảo vệ mô hình trong `README.md`.
+- [x] 1. Khai báo rõ Họ tên, MSSV và Tên dự án (nhóm Build Phase hoặc cá nhân) trong `README.md`.
+- [x] 2. File Excel đã điền 100% ô màu vàng cả 3 kịch bản tại Tab 1.
+- [x] 3. Đã đảm bảo `AI Hidden Costs >= 30% API Cost` (không để bằng 0).
+- [x] 4. Tab 2 Base LTV/CAC > 3.0 và CAC Payback < 12 tháng (tính trên Gross Margin).
+- [x] 5. Tab 3 khi đổi sang `Pessimistic` đảm bảo Runway ≥ 12 tháng (Cash Position không bị âm).
+- [x] 6. Viết xong đoạn văn **Decision Note (200–300 từ)** bảo vệ mô hình trong `README.md`.
 
 ---
 
